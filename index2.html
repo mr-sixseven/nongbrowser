@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SongHub</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#0b0b10;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+
+header{
+    padding:35px;
+    text-align:center;
+}
+
+
+h1{
+    font-size:42px;
+    margin:0 0 25px;
+}
+
+
+#search{
+
+    width:min(900px,90%);
+
+    padding:16px 20px;
+
+    border-radius:14px;
+
+    border:none;
+
+    background:#191922;
+
+    color:white;
+
+    font-size:18px;
+
+    outline:none;
+}
+
+
+
+#count{
+
+    margin-top:15px;
+
+    color:#999;
+
+}
+
+
+
+#results{
+
+    width:min(950px,95%);
+
+    margin:auto;
+
+    padding-bottom:120px;
+
+}
+
+
+
+.card{
+
+    background:#171720;
+
+    border:1px solid #292936;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    margin:15px 0;
+
+}
+
+
+
+.title{
+
+    font-size:22px;
+
+    font-weight:bold;
+
+}
+
+
+
+.songname{
+
+    color:#aaa;
+
+    margin-top:8px;
+
+}
+
+
+
+.info{
+
+    margin-top:15px;
+
+    color:#ccc;
+
+    font-size:14px;
+
+    line-height:1.6;
+
+}
+
+
+
+button{
+
+    margin-top:15px;
+
+    margin-right:10px;
+
+    padding:10px 15px;
+
+    border-radius:10px;
+
+    border:0;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+
+
+.play{
+
+    background:white;
+
+    color:black;
+
+}
+
+
+
+.copy{
+
+    background:#333;
+
+    color:white;
+
+}
+
+
+
+.playlist{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+
+
+audio{
+
+    position:fixed;
+
+    bottom:0;
+
+    left:0;
+
+    width:100%;
+
+}
+
+
+
+footer{
+
+    text-align:center;
+
+    color:#666;
+
+    padding:30px;
+
+}
+
+#playlistPanel{
+
+    position:fixed;
+
+    top:0;
+    right:-380px;
+
+    width:360px;
+    height:100%;
+
+    background:#15151d;
+
+    border-left:1px solid #303040;
+
+    transition:right .25s;
+
+    display:flex;
+
+    flex-direction:column;
+
+    z-index:999;
+
+}
+
+#playlistPanel.open{
+
+    right:0;
+
+}
+
+.playlistHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px;
+
+    border-bottom:1px solid #303040;
+
+}
+
+#playlistList{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:15px;
+
+}
+
+.playlistItem{
+
+    padding:12px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    margin-bottom:8px;
+
+    background:#20202b;
+
+}
+
+.playlistItem:hover{
+
+    background:#292938;
+
+}
+
+#newPlaylistButton{
+
+    margin:15px;
+
+}
+
+#closePlaylist{
+
+    width:auto;
+
+    margin:0;
+
+}
+
+#playlistNameInput{
+
+    width:100%;
+
+    padding:12px;
+
+    margin:15px 0;
+
+    border-radius:10px;
+
+    border:1px solid #303040;
+
+    background:#20202b;
+
+    color:white;
+
+    font-size:16px;
+
+}
+
+#playlistModal{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.65);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:3000;
+
+}
+
+#playlistModal.open{
+
+    display:flex;
+
+}
+
+.modalBox{
+
+    background:#171720;
+
+    border:1px solid #333;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    width:420px;
+
+    max-width:90%;
+
+}
+
+.modalBox h2{
+
+    margin-top:0;
+
+}
+
+.modalBox input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin:20px 0;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#222;
+
+    color:white;
+
+    font-size:16px;
+
+}
+
+.modalButtons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+}
+
+#playlistModal{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.65);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:9999;
+
+}
+
+#playlistModal.open{
+
+    display:flex;
+
+}
+
+.modalBox{
+
+    background:#181820;
+
+    border:1px solid #333;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    width:min(420px,90%);
+
+}
+
+.modalBox h2{
+
+    margin-top:0;
+
+}
+
+.modalBox input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin:18px 0;
+
+    border:0;
+
+    border-radius:10px;
+
+    background:#262633;
+
+    color:white;
+
+    font-size:16px;
+
+}
+
+.modalButtons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>🎧 SongHub</h1>
+
+
+<input
+id="search"
+placeholder="Buscar canción, artista, Newgrounds ID o SFH ID...">
+
+
+<button id="playlistsButton">
+📁 Playlists
+</button>
+
+
+<div id="count">
+0 resultados
+</div>
+
+
+</header>
+
+
+
+<div id="results"></div>
+
+<div id="playlistPanel">
+
+    <div class="playlistHeader">
+
+        <h2>📁 Playlists</h2>
+
+        <button id="closePlaylist">✕</button>
+
+    </div>
+
+    <div id="playlistList"></div>
+
+    <button id="newPlaylistButton">
+        ➕ Nueva playlist
+    </button>
+
+</div>
+
+<div id="playlistModal">
+
+    <div class="modalBox">
+
+        <h2>Nueva playlist</h2>
+
+        <input
+            id="playlistNameInput"
+            placeholder="Nombre de la playlist">
+
+        <div class="modalButtons">
+
+            <button id="cancelPlaylist">
+                Cancelar
+            </button>
+
+            <button id="createPlaylistButton">
+                Crear
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<audio id="player" controls></audio>
+
+
+
+<footer>
+
+SongHub is an unofficial client using data and audio provided by Song File Hub.
+
+</footer>
+
+<script>
+
+let songs = [];
+
+
+const results =
+document.getElementById("results");
+
+
+const search =
+document.getElementById("search");
+
+
+const count =
+document.getElementById("count");
+
+
+const player =
+document.getElementById("player");
+
+
+
+fetch("songs.json")
+
+.then(response => response.json())
+
+.then(data => {
+
+    songs = data;
+
+
+    console.log(
+        "Canciones cargadas:",
+        songs.length
+    );
+
+
+    render(
+        songs.slice(0,50)
+    );
+
+
+})
+.catch(error => {
+
+    console.error(
+        "Error cargando songs.json:",
+        error
+    );
+
+
+    count.textContent =
+    "Error cargando canciones";
+
+});
+
+
+
+
+
+function render(list){
+
+
+    results.innerHTML="";
+
+
+    count.textContent =
+    list.length + " resultados";
+
+
+
+    if(list.length===0){
+
+        results.innerHTML =
+        "<p>No encontrado</p>";
+
+        return;
+
+    }
+
+
+
+    list.forEach(song=>{
+
+
+        const card =
+        document.createElement("div");
+
+
+        card.className="card";
+
+
+
+        const id =
+        song._id || "";
+
+
+
+        card.innerHTML = `
+
+
+        <div class="title">
+
+        🎵 ${escapeHTML(song.name || "Sin nombre")}
+
+        </div>
+
+
+
+        <div class="songname">
+
+        ${escapeHTML(song.songName || "")}
+
+        </div>
+
+
+
+        <div class="info">
+
+
+        🌐 Newgrounds:
+        ${song.songID || "-"}
+
+        <br>
+
+
+        🔑 SFH:
+        ${id}
+
+
+        <br>
+
+
+        📥 Descargas:
+        ${song.downloads || 0}
+
+
+        </div>
+
+
+
+        <button class="play">
+
+        ▶ Reproducir
+
+        </button>
+
+
+
+        <button class="copy">
+
+        🔗 Copiar URL
+
+        </button>
+
+
+
+        <button class="playlist">
+
+        ➕ Playlist
+
+        </button>
+
+
+
+        `;
+
+
+
+        card.querySelector(".play")
+        .onclick = async ()=>{
+
+
+            player.pause();
+
+
+            player.src =
+            song.downloadUrl;
+
+
+            try{
+
+                await player.play();
+
+            }catch(e){
+
+                console.log(
+                    "Reproducción cancelada"
+                );
+
+            }
+
+
+        };
+
+
+
+        card.querySelector(".copy")
+        .onclick = ()=>{
+
+
+            navigator.clipboard.writeText(
+
+                "https://api.songfilehub.com/audio/"
+                +
+                id
+
+            );
+
+
+        };
+
+
+
+card.querySelector(".playlist").onclick = ()=>{
+
+    pendingSong = song;
+
+    renderPlaylists();
+
+    playlistPanel.classList.add("open");
+
+};
+
+
+
+        results.appendChild(card);
+
+
+    });
+
+
+}
+
+
+
+
+
+search.oninput = ()=>{
+
+
+    const q =
+    search.value
+    .toLowerCase()
+    .trim();
+
+
+
+    if(!q){
+
+        render(
+            songs.slice(0,50)
+        );
+
+        return;
+
+    }
+
+
+
+    const filtered =
+    songs.filter(song=>{
+
+
+        const text = [
+
+            song.name,
+
+            song.songName,
+
+            song.songID,
+
+            song._id,
+
+            song.songURL
+
+        ]
+
+        .join(" ")
+
+        .toLowerCase();
+
+
+
+        return text.includes(q);
+
+
+    });
+
+
+
+    render(
+        filtered.slice(0,100)
+    );
+
+
+};
+
+
+
+
+
+
+function escapeHTML(text){
+
+
+    return String(text)
+
+    .replaceAll("&","&amp;")
+
+    .replaceAll("<","&lt;")
+
+    .replaceAll(">","&gt;")
+
+    .replaceAll('"',"&quot;")
+
+    .replaceAll("'","&#039;");
+
+
+}
+
+
+
+</script>
+
+
+<script>
+
+const STORAGE = {
+    PLAYLISTS: "songhub_playlists",
+    FAVORITES: "songhub_favorites",
+    SETTINGS: "songhub_settings"
+};
+
+let playlists =
+JSON.parse(
+    localStorage.getItem(STORAGE.PLAYLISTS) || "{}"
+);
+
+let favorites =
+JSON.parse(
+    localStorage.getItem(STORAGE.FAVORITES) || "[]"
+);
+
+let queue = [];
+
+let currentSong = null;
+
+let currentPlaylist = null;
+
+let filteredSongs = [];
+
+let maxResults = 100;
+
+let pendingSong = null;
+
+function savePlaylists(){
+    localStorage.setItem(
+        STORAGE.PLAYLISTS,
+        JSON.stringify(playlists)
+    );
+}
+
+function saveFavorites(){
+    localStorage.setItem(
+        STORAGE.FAVORITES,
+        JSON.stringify(favorites)
+    );
+}
+
+function isFavorite(id){
+    return favorites.includes(id);
+}
+
+function toggleFavorite(id){
+
+    if(isFavorite(id)){
+        favorites =
+        favorites.filter(x=>x!==id);
+    }else{
+        favorites.push(id);
+    }
+
+    saveFavorites();
+}
+
+</script>
+
+<script>
+
+// =========================
+// PLAYLISTS
+// =========================
+
+function createPlaylist(name){
+
+    name = (name || "").trim();
+
+    if(!name) return false;
+
+    if(playlists[name]){
+        alert("Ya existe una playlist con ese nombre.");
+        return false;
+    }
+
+    playlists[name] = [];
+
+    savePlaylists();
+
+    return true;
+
+}
+
+document.getElementById("createPlaylistButton").onclick = ()=>{
+
+    const name =
+    playlistNameInput.value.trim();
+
+    if(!name)
+        return;
+
+    if(!createPlaylist(name))
+        return;
+
+playlistModal.classList.remove("open");
+
+playlistPanel.classList.add("open");
+
+renderPlaylists();
+    
+};
+
+function deletePlaylist(name){
+
+    if(!playlists[name]) return;
+
+    if(!confirm(`¿Eliminar "${name}"?`))
+        return;
+
+    delete playlists[name];
+
+    if(currentPlaylist===name)
+        currentPlaylist=null;
+
+    savePlaylists();
+
+}
+
+function renamePlaylist(oldName,newName){
+
+    newName=(newName||"").trim();
+
+    if(!newName) return false;
+
+    if(oldName===newName) return true;
+
+    if(playlists[newName]){
+        alert("Ese nombre ya existe.");
+        return false;
+    }
+
+    playlists[newName]=playlists[oldName];
+
+    delete playlists[oldName];
+
+    if(currentPlaylist===oldName)
+        currentPlaylist=newName;
+
+    savePlaylists();
+
+    return true;
+
+}
+
+function addSongToPlaylist(name,id){
+
+    if(!playlists[name])
+        playlists[name]=[];
+
+    if(!playlists[name].includes(id))
+        playlists[name].push(id);
+
+    savePlaylists();
+
+}
+
+function removeSongFromPlaylist(name,id){
+
+    if(!playlists[name]) return;
+
+    playlists[name]=
+        playlists[name]
+        .filter(x=>x!==id);
+
+    savePlaylists();
+
+}
+
+function getPlaylistSongs(name){
+
+    if(!playlists[name])
+        return [];
+
+    return playlists[name]
+        .map(id=>songs.find(s=>s._id===id))
+        .filter(Boolean);
+
+}
+
+function playlistNames(){
+
+    return Object.keys(playlists)
+        .sort((a,b)=>a.localeCompare(b));
+
+}
+
+
+const playlistPanel =
+document.getElementById("playlistPanel");
+
+const playlistNameInput =
+document.getElementById("playlistNameInput");
+
+const playlistList =
+document.getElementById("playlistList");
+
+const playlistsButton =
+document.getElementById("playlistsButton");
+
+playlistNameInput.onkeydown = e=>{
+
+    if(e.key==="Enter"){
+
+        document
+        .getElementById("createPlaylistButton")
+        .click();
+
+    }
+
+};
+
+document.getElementById("closePlaylist").onclick = ()=>{
+
+    pendingSong = null;
+
+    playlistPanel.classList.remove("open");
+
+};
+
+playlistsButton.onclick = ()=>{
+
+    renderPlaylists();
+
+    playlistPanel.classList.add("open");
+
+};
+
+function renderPlaylists(){
+
+    playlistList.style.display="block";
+
+    playlistList.innerHTML="";
+
+    let names=playlistNames();
+
+    if(names.length===0){
+
+        playlistList.innerHTML=
+        "<p>No hay playlists.</p>";
+
+        return;
+
+    }
+
+    names.forEach(name=>{
+
+        let div=document.createElement("div");
+
+        div.className="playlistItem";
+
+        div.innerHTML=
+        "<b>"+escapeHTML(name)+"</b><br>"+
+        playlists[name].length+" canciones";
+
+        div.onclick=()=>{
+
+    if(pendingSong){
+
+        addSongToPlaylist(
+            name,
+            pendingSong._id
+        );
+
+        pendingSong = null;
+
+        playlistPanel.classList.remove("open");
+
+        alert("Añadida a " + name);
+
+        return;
+
+    }
+
+    openPlaylist(name);
+
+};
+
+        playlistList.appendChild(div);
+
+    });
+
+}
+
+function openPlaylist(name){
+
+    currentPlaylist = name;
+
+    let list = getPlaylistSongs(name);
+
+    playlistList.innerHTML = "";
+
+    if(list.length===0){
+
+        playlistList.innerHTML =
+        "<p>Esta playlist está vacía.</p>";
+
+        return;
+
+    }
+
+    let back = document.createElement("button");
+
+    back.textContent = "← Volver";
+
+    back.onclick = renderPlaylists;
+
+    playlistList.appendChild(back);
+
+    let title = document.createElement("h3");
+
+    title.textContent = name;
+
+    playlistList.appendChild(title);
+
+    list.forEach(song=>{
+
+        let div = document.createElement("div");
+
+        div.className = "playlistItem";
+
+        div.innerHTML =
+            "<b>"+escapeHTML(song.name)+"</b><br>"+
+            "<span style='color:#999'>"+
+            escapeHTML(song.songName||"")+
+            "</span>";
+
+        let play = document.createElement("button");
+
+        play.textContent = "▶";
+
+        play.onclick = async ()=>{
+
+            player.pause();
+
+            player.src = song.downloadUrl;
+
+            try{
+                await player.play();
+            }catch{}
+
+        };
+
+        let remove = document.createElement("button");
+
+        remove.textContent = "❌";
+
+        remove.onclick = ()=>{
+
+            removeSongFromPlaylist(
+                name,
+                song._id
+            );
+
+            openPlaylist(name);
+
+        };
+
+        div.appendChild(document.createElement("br"));
+
+        div.appendChild(play);
+
+        div.appendChild(remove);
+
+        playlistList.appendChild(div);
+
+    });
+
+}
+
+const playlistModal =
+document.getElementById("playlistModal");
+
+document.getElementById("newPlaylistButton").onclick = ()=>{
+
+    playlistNameInput.value = "";
+
+    playlistModal.classList.add("open");
+
+    playlistNameInput.focus();
+
+};
+
+document.getElementById("cancelPlaylist").onclick = ()=>{
+
+    playlistModal.classList.remove("open");
+
+};
+    
+</script>
+
+</body>
+</html>
