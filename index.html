@@ -497,9 +497,47 @@ placeholder="Buscar canción, artista, Newgrounds ID o SFH ID...">
 
     <div id="playlistList"></div>
 
+    <div id="playlistView" style="display:none;">
+
+    <button id="backToPlaylists">
+        ← Volver
+    </button>
+
+    <h2 id="playlistTitle"></h2>
+
+    <div style="margin:15px 0;">
+
+        <button id="playPlaylist">
+            ▶ Reproducir
+        </button>
+
+        <button id="shufflePlaylist">
+            🔀 Aleatorio
+        </button>
+
+        <button id="exportPlaylist">
+            📤 Exportar
+        </button>
+
+    </div>
+
+    <div id="playlistSongs"></div>
+
+</div>
+
     <button id="newPlaylistButton">
         ➕ Nueva playlist
     </button>
+
+    <button id="importPlaylist">
+    📥 Importar
+</button>
+
+<input
+    type="file"
+    id="importPlaylistFile"
+    accept=".json"
+    style="display:none">
 
 </div>
 
@@ -560,6 +598,85 @@ document.getElementById("count");
 
 const player =
 document.getElementById("player");
+
+
+// =========================
+// Motor de reproducción
+// =========================
+
+async function playSong(song){
+
+    if(!song) return;
+
+    currentSong = song;
+
+    player.pause();
+
+    player.src = song.downloadUrl;
+
+    try{
+
+        await player.play();
+
+    }catch(e){
+
+        console.log("Reproducción cancelada");
+
+    }
+
+}
+
+function playQueueIndex(index){
+
+    if(index < 0) return;
+
+    if(index >= playQueue.length) return;
+
+    queueIndex = index;
+
+    playSong(playQueue[queueIndex]);
+
+}
+
+function playNext(){
+
+    if(playQueue.length===0)
+        return;
+
+    if(queueIndex + 1 < playQueue.length){
+
+        playQueueIndex(queueIndex + 1);
+
+        return;
+
+    }
+
+    if(repeatMode){
+
+        playQueueIndex(0);
+
+    }
+
+}
+
+function playPrevious(){
+
+    if(playQueue.length===0)
+        return;
+
+    if(queueIndex>0){
+
+        playQueueIndex(queueIndex-1);
+
+    }
+
+}
+
+player.onended = ()=>{
+
+    playNext();
+
+};
 
 
 
@@ -710,31 +827,15 @@ function render(list){
 
 
 
-        card.querySelector(".play")
-        .onclick = async ()=>{
+        card.querySelector(".play").onclick = ()=>{
 
+    playQueue = [song];
 
-            player.pause();
+    queueIndex = 0;
 
+    playSong(song);
 
-            player.src =
-            song.downloadUrl;
-
-
-            try{
-
-                await player.play();
-
-            }catch(e){
-
-                console.log(
-                    "Reproducción cancelada"
-                );
-
-            }
-
-
-        };
+};
 
 
 
@@ -896,6 +997,18 @@ let filteredSongs = [];
 let maxResults = 100;
 
 let pendingSong = null;
+
+// =========================
+// Reproductor (V3)
+// =========================
+
+let playQueue = [];
+
+let queueIndex = -1;
+
+let repeatMode = false;
+
+let shuffleMode = false;
 
 function savePlaylists(){
     localStorage.setItem(
@@ -1070,6 +1183,15 @@ document.getElementById("playlistList");
 const playlistsButton =
 document.getElementById("playlistsButton");
 
+const playlistView =
+document.getElementById("playlistView");
+
+const playlistSongs =
+document.getElementById("playlistSongs");
+
+const playlistTitle =
+document.getElementById("playlistTitle");
+
 playlistNameInput.onkeydown = e=>{
 
     if(e.key==="Enter"){
@@ -1098,9 +1220,82 @@ playlistsButton.onclick = ()=>{
 
 };
 
+const importPlaylistFile =
+document.getElementById("importPlaylistFile");
+
+document
+.getElementById("importPlaylist")
+.onclick = ()=>{
+
+    importPlaylistFile.click();
+
+};
+
+importPlaylistFile.onchange = async ()=>{
+
+    const file =
+    importPlaylistFile.files[0];
+
+    if(!file)
+        return;
+
+    let data;
+
+    try{
+
+        data =
+        JSON.parse(await file.text());
+
+    }catch{
+
+        alert("JSON no válido.");
+
+        return;
+
+    }
+
+    if(
+        !data.name ||
+        !Array.isArray(data.songs)
+    ){
+
+        alert("Formato incorrecto.");
+
+        return;
+
+    }
+
+    let name = data.name;
+
+    let n = 2;
+
+    while(playlists[name]){
+
+        name =
+        `${data.name} (${n++})`;
+
+    }
+
+    playlists[name] =
+    [...data.songs];
+
+    savePlaylists();
+
+    renderPlaylists();
+
+    alert(
+        `Playlist "${name}" importada.`
+    );
+
+    importPlaylistFile.value = "";
+
+};
+
 function renderPlaylists(){
 
-    playlistList.style.display="block";
+    playlistView.style.display = "none";
+
+playlistList.style.display = "block";
 
     playlistList.innerHTML="";
 
@@ -1158,83 +1353,128 @@ function openPlaylist(name){
 
     currentPlaylist = name;
 
-    let list = getPlaylistSongs(name);
+    playlistList.style.display = "none";
 
-    playlistList.innerHTML = "";
+    playlistView.style.display = "block";
 
-    if(list.length===0){
+    playlistTitle.textContent = "🎵 " + name;
 
-        playlistList.innerHTML =
+    playlistSongs.innerHTML = "";
+
+    let songsInPlaylist =
+    getPlaylistSongs(name);
+
+    if(songsInPlaylist.length===0){
+
+        playlistSongs.innerHTML =
         "<p>Esta playlist está vacía.</p>";
 
         return;
 
     }
 
-    let back = document.createElement("button");
+    document.getElementById("playPlaylist").onclick = ()=>{
 
-    back.textContent = "← Volver";
+        playQueue = [...songsInPlaylist];
 
-    back.onclick = renderPlaylists;
+        queueIndex = 0;
 
-    playlistList.appendChild(back);
+        playSong(playQueue[0]);
 
-    let title = document.createElement("h3");
+    };
 
-    title.textContent = name;
+    document.getElementById("shufflePlaylist").onclick = ()=>{
 
-    playlistList.appendChild(title);
+    playQueue = [...songsInPlaylist];
 
-    list.forEach(song=>{
+    for(let i=playQueue.length-1;i>0;i--){
 
-        let div = document.createElement("div");
+        const j =
+        Math.floor(Math.random()*(i+1));
+
+        [playQueue[i],playQueue[j]] =
+        [playQueue[j],playQueue[i]];
+
+    }
+
+    queueIndex = 0;
+
+    playSong(playQueue[0]);
+
+};
+
+    document.getElementById("exportPlaylist").onclick = ()=>{
+
+    const data = {
+
+        name,
+
+        exported: new Date().toISOString(),
+
+        songs: playlists[name]
+
+    };
+
+    const blob = new Blob(
+
+        [JSON.stringify(data,null,4)],
+
+        {type:"application/json"}
+
+    );
+
+    const url =
+    URL.createObjectURL(blob);
+
+    const a =
+    document.createElement("a");
+
+    a.href = url;
+
+    a.download = name + ".json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+};
+
+    songsInPlaylist.forEach(song=>{
+
+        let div =
+        document.createElement("div");
 
         div.className = "playlistItem";
 
-        div.innerHTML =
-            "<b>"+escapeHTML(song.name)+"</b><br>"+
-            "<span style='color:#999'>"+
-            escapeHTML(song.songName||"")+
-            "</span>";
+        div.innerHTML = `
+            <b>${escapeHTML(song.name)}</b><br>
+            <span style="color:#aaa;">
+                ${escapeHTML(song.songName || "")}
+            </span><br><br>
 
-        let play = document.createElement("button");
+            <button class="playSong">▶</button>
+            <button class="removeSong">❌</button>
+        `;
 
-        play.textContent = "▶";
+        div.querySelector(".playSong").onclick = ()=>{
 
-        play.onclick = async ()=>{
+            playQueue = [...songsInPlaylist];
 
-            player.pause();
+            queueIndex = songsInPlaylist.indexOf(song);
 
-            player.src = song.downloadUrl;
-
-            try{
-                await player.play();
-            }catch{}
+            playSong(song);
 
         };
 
-        let remove = document.createElement("button");
+        div.querySelector(".removeSong").onclick = ()=>{
 
-        remove.textContent = "❌";
-
-        remove.onclick = ()=>{
-
-            removeSongFromPlaylist(
-                name,
-                song._id
-            );
+            removeSongFromPlaylist(name, song._id);
 
             openPlaylist(name);
 
         };
 
-        div.appendChild(document.createElement("br"));
-
-        div.appendChild(play);
-
-        div.appendChild(remove);
-
-        playlistList.appendChild(div);
+        playlistSongs.appendChild(div);
 
     });
 
