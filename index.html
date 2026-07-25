@@ -121,6 +121,11 @@ h1{
 
 }
 
+#playlistView{
+    flex:1;
+    overflow-y:auto;
+    padding:15px;
+}
 
 
 button{
@@ -198,27 +203,22 @@ footer{
 }
 
 #playlistPanel{
-
     position:fixed;
-
     top:0;
     right:-380px;
 
     width:360px;
-    height:100%;
+    height:100vh;
 
     background:#15151d;
-
     border-left:1px solid #303040;
 
     transition:right .25s;
 
     display:flex;
-
     flex-direction:column;
-
+    overflow:hidden;
     z-index:999;
-
 }
 
 #playlistPanel.open{
